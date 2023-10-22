@@ -1,5 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import { json, type LoaderFunctionArgs, type LinksFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -9,10 +9,13 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import createServerClient from "utils/supabase.server";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { LoaderFunctionArgs, LinksFunction } from "@remix-run/node";
 import type { Database } from "db_types";
+import { createBrowserClient } from "@supabase/auth-helpers-remix";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -24,18 +27,28 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const loader = ({}: LoaderFunctionArgs) => {
+export const loader = async ({request}: LoaderFunctionArgs) => {
   const env = getBrowserEnvironment();
+  
+  const response = new Response();
+  const supabase = createServerClient({request, response});
+  const {data: {session}} = await supabase.auth.getSession();
 
-  return json({ env });
+  return json({ env, session }, {headers: response.headers});
 }
 
 export default function App() {
 
-  const {env} = useLoaderData<typeof loader>();
+  const {env, session} = useLoaderData<typeof loader>();
+
+  console.log({server: session});
+
+  useEffect(() => {
+    supabase.auth.getSession().then(data => console.log({client: data}));
+  });
 
   const [supabase] = useState(() => 
-    createClient<Database>(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!)
+    createBrowserClient<Database>(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!)
   );  
 
   return (
