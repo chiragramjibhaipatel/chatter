@@ -1,5 +1,5 @@
 import { useLoaderData } from "@remix-run/react";
-import supabase from "utils/supabase";
+import supabase from "utils/supabase.server";
 
 import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
 import Login from "components/Login";
