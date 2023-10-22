@@ -1,8 +1,9 @@
 import { useOutletContext } from "@remix-run/react";
+import { type OutletContextType } from "~/root";
 
 export default function Login(){
 
-    const {supabase} = useOutletContext();
+    const {supabase} = useOutletContext<OutletContextType>();
     async function signInWithGithub() {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: "github",

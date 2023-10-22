@@ -9,10 +9,16 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { useState } from "react";
 
 import type { Database } from "db_types";
+
+type TypedSupabaseClient = SupabaseClient<Database>;
+
+export type OutletContextType = {
+  supabase: TypedSupabaseClient
+}
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
