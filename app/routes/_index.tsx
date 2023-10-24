@@ -11,15 +11,14 @@ export const meta: MetaFunction = () => {
 
 export const loader = async () => {
   const {data} = await supabase.from("messages").select();
-  console.log({data})
-  return { data };
+  
+  return { messages: data ?? [] };
 }
 
 export default function Index() {
-  const {data} = useLoaderData();
-  console.log({data});
+  const {messages} = useLoaderData<typeof loader>();
   
   return (
-    <pre>{JSON.stringify(data, null, 2)}</pre>
+    <pre>{JSON.stringify(messages, null, 2)}</pre>
   );
 }
