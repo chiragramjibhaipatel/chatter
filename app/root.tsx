@@ -9,11 +9,17 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "db_types";
+import { useState } from "react";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
+type TypedSupabaseClient = SupabaseClient<Database>;
+export type SupabaseOutletContext = {
+  supabase : TypedSupabaseClient
+}
 
 export const loader = () => {
   const env = {
@@ -27,7 +33,9 @@ export const loader = () => {
 export default function App() {
 
   const {env} = useLoaderData<typeof loader>();
-  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+
+  const [supabase] = useState(() => createClient<Database>(env.SUPABASE_URL, env.SUPABASE_ANON_KEY));
+
   return (
     <html lang="en">
       <head>
