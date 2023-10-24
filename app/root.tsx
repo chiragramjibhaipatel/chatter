@@ -1,5 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction } from "@remix-run/node";
+import { json, type LinksFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -7,13 +7,27 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
+import { createClient } from "@supabase/supabase-js";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
+export const loader = () => {
+  const env = {
+    SUPABASE_URL : process.env.SUPABASE_URL!,
+    SUPABASE_ANON_KEY : process.env.SUPABASE_ANON_KEY!
+  }
+  
+  return json({env});
+}
+
 export default function App() {
+
+  const {env} = useLoaderData<typeof loader>();
+  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
   return (
     <html lang="en">
       <head>
@@ -23,7 +37,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <Outlet context={{supabase}} />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
